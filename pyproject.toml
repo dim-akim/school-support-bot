@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "support-school-bot"
+version = "0.1.0"
+description = "Telegram bot for technical support of the school using Google Spreadsheets"
+authors = ["Dmitry Akimov <akimov@1060.ru>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+python-telegram-bot = "^21.7"
+pygsheets = "^2.0.6"
+python-dateutil = "^2.9.0.post0"
+python-dotenv = "^1.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

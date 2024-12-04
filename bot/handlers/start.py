@@ -30,6 +30,7 @@ def authorize(command):
                 return await sign_up(update, context)
             context.user_data['table_fullname'] = current_user.fullname
             context.user_data['role'] = current_user.role
+            logger.info(f'authorized: {str(context.user_data)}')
         return await command(*args, **kwargs)
 
     return wrapper

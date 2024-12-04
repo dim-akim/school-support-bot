@@ -10,6 +10,7 @@ from telegram.ext import (MessageHandler,
 
 from bot.settings import Config
 from bot.handlers.cancel import exit_command_handler, exit_callback_handler
+from bot.handlers.restrictions import admin_only
 from bot.utils.keyboards import make_inline_keyboard
 from bot.utils.users import (User,
                              write_user_to_table)
@@ -55,21 +56,22 @@ async def send_new_user_to_admin(update: Update, context: ContextTypes.DEFAULT_T
     return ConversationHandler.END
 
 
+@admin_only
 async def approve_new_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     logger.info(
-        f'approve_new_user is triggered by user: {update.effective_user}')
+        f'approve_new_user is triggered by {context.user_data["table_fullname"]}: {update.effective_user}')
     query = update.callback_query
     await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
 
     _, verdict, user_id = query.data.split('_')  # TODO вынести в отдельную функцию
     user_id = int(user_id)
-    user = context.bot_data['new_users'].pop(user_id, None)
-    if user:
+    new_user = context.bot_data['new_users'].pop(user_id, None)
+    if new_user:
         if verdict == APPROVE:
-            write_user_to_table(user, context.user_data['table_fullname'])
-            # write_user_to_table(user, 'testing')
-            context.bot_data['users'][user_id] = user
-        await send_verdict(user, verdict, context)
+            write_user_to_table(new_user, context.user_data['table_fullname'])
+            # write_user_to_table(new_user, 'testing')
+            context.bot_data['users'][user_id] = new_user
+        await send_verdict(new_user, verdict, context)
     else:
         logger.warning(
             f'User with {user_id=} not found in bot_data["new_users"]. Probably already approved or declined')
@@ -128,7 +130,7 @@ async def new_fullname_for_user(update: Update, context: ContextTypes.DEFAULT_TY
         'для отображения в таблице',
     ]
     text = '\n'.join(text)
-    await query.edit_message_text(text, parse_mode=ParseMode.HTML)
+    await query.edit_message_text(text, parse_mode=ParseMode.HTML, entities=query.message.entities)
     return WAIT_NEW_FULLNAME
 
 
@@ -136,6 +138,7 @@ async def get_new_fullname(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     logger.info(f'get_new_fullname is triggered by user: {update.effective_user}')
     new_fullname = update.message.text
     user = context.bot_data['new_users'].get(context.user_data['new_fullname_for'])
+    context.user_data['new_fullname_for'] = None
     if not user:
         logger.warning(
             f'User with telegram_id={context.user_data['new_fullname_for']} not found in bot_data["new_users"]. '

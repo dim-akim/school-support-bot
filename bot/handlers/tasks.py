@@ -129,7 +129,7 @@ async def tasks_choose_description(update: Update, context: ContextTypes.DEFAULT
         'Компьютер': []
     }
     keyboard = None
-    if problems[category]:
+    if category in problems and problems[category]:
         buttons = {problem: f'desc_{problem}' for problem in problems[category]}
         keyboard = make_inline_keyboard(buttons, callback_prefix=Config.TASKS_CALLBACK_PREFIX)
 
@@ -337,10 +337,6 @@ async def tasks_show_which(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     await query.answer()
     await context.bot.send_chat_action(update.effective_chat.id, ChatAction.TYPING)
     context.user_data['tasks'] = _get_open_tasks_by_executor(context.user_data['table_fullname'])
-    # buttons = {
-    #     'Невзятые': 'show_nobodys',
-    #     'Мои': 'show_mine'
-    # }
     buttons = {
         'Невзятые': 'show_nobodys',
         'Мои': 'show_0'
@@ -441,10 +437,6 @@ async def close_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     elif action == CANCEL_TASK:
         task.cancel()
     await show_one_task(update, context)
-    # answer = {
-    #     CLOSE_TASK: '😎 Выполнено!',
-    #     CANCEL_TASK: '⛔ Отклонено!'
-    # }
 
 
 async def send_notification_to_author(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

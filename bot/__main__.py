@@ -60,7 +60,8 @@ CONVERSATION_HANDLERS = [
 def run_support_bot():
     """Запускает бота @help_admin_1060_bot
     """
-    app = ApplicationBuilder().token(Config.BOT_TOKEN).build()
+    app = ApplicationBuilder().token(
+        Config.ECHO_TOKEN if Config.APP_ENV == 'dev' else Config.BOT_TOKEN).build()
 
     for command_name, command_handler in COMMAND_HANDLERS.items():
         app.add_handler(CommandHandler(command_name, command_handler))

@@ -1,7 +1,7 @@
 
 import logging
 import logging.config
-from logging.handlers import TimedRotatingFileHandler
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 
@@ -10,10 +10,15 @@ LOG_FOLDER = BASE_DIR / 'logs'  # имя папки с логами
 LOG_FOLDER.mkdir(exist_ok=True)  # создаем папку для логов. exist_ok - если папка уже есть, не будет ошибки
 
 LOG_FILE = 'support-bot.log'  # имя для общего лог-файла
+ERRORS_FILE = 'errors.log'  # имя для файла с ошибками
 
-file_handler = logging.FileHandler(LOG_FOLDER / LOG_FILE)
+file_handler = RotatingFileHandler(LOG_FOLDER / LOG_FILE, maxBytes=100000, backupCount=5)
 # file_handler.setFormatter(FORMATTER)
 file_handler.setLevel(logging.INFO)
+
+error_file_handler = logging.FileHandler(LOG_FOLDER / ERRORS_FILE)
+# file_handler.setFormatter(FORMATTER)
+error_file_handler.setLevel(logging.ERROR)
 
 console_handler = logging.StreamHandler()
 # console_handler.setFormatter(FORMATTER)
@@ -24,7 +29,7 @@ def configure_logging(level=logging.INFO):
     logging.basicConfig(
         format="%(asctime)s | %(levelname)-7s | %(name)-30s [%(lineno)4d] - %(message)s",
         level=level,
-        handlers=[file_handler, console_handler]
+        handlers=[file_handler, console_handler, error_file_handler]
     )
 
 

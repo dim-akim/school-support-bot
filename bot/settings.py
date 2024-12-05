@@ -5,7 +5,9 @@
 
     TODO использовать pydantic_settings?
 """
+import time
 import os
+import sys
 import json
 import logging
 from dotenv import load_dotenv
@@ -14,6 +16,9 @@ from pathlib import Path
 from bot.utils.log import configure_logging, BASE_DIR
 
 load_dotenv()
+
+if sys.platform == 'linux':
+    time.tzset()  # Установить localtime в соответствии с переменной окружения TZ
 
 configure_logging(logging.INFO)
 logging.getLogger('httpx').setLevel(logging.WARNING)
